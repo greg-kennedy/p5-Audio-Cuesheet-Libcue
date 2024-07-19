@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    container:
+      image: perldocker/perl-tester:latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@main
+      - name: Install Dependencies
+        run: apt-get install -y libcue-dev
+      - name: Perl version
+        run: perl -V
+      - name: Create Makefile
+        run: perl Makefile.PL
+      - name: Build module
+        run: make
+      - name: Run tests
+        run: prove -wlvmb t
+
+  perlcritic:
+    uses: PerlToolsTeam/github_workflows/.github/workflows/cpan-perlcritic.yml@main
